@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
     <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         .msg {
             border-radius: 5px;
             padding: 5px;
@@ -23,58 +29,441 @@
         }
 
         #typer {}
+
+        input {
+            border-radius: 5px;
+            border: 2px solid gray;
+            padding: 5px;
+        }
+
+        #messages {
+            border-radius: 5px;
+            padding: 10px;
+            background-color: rgb(43, 43, 43, 0.1);
+            margin: 10px;
+        }
+
+        .message {
+            display: flex;
+            border: 2px solid gray;
+            background-color: rgb(179, 179, 179);
+            border-radius: 5px;
+            padding: 5px;
+            margin: 5px;
+            width: fit-content;
+
+        }
+
+        .senderdata {
+            display: flex;
+
+            margin: 0px 10px 0px 5px;
+            border-right: 2px solid gray;
+        }
+
+        .sender-name {
+            font-weight: bold;
+        }
+
+        .avatar {
+            padding: 5px;
+            border-radius: 50%;
+            text-align: center;
+            aspect-ratio: 1;
+            width: 30px;
+            height: 30px;
+        }
+
+        .messagecontent {}
+
+        .timestamp {
+            color: gray;
+            font-size: 10px;
+        }
+
+        .message-time-and-sender {
+            display: flex;
+            flex-direction: column;
+            margin: 5px;
+        }
+
+        .error {
+            border: 2px solid red;
+            background-color: #aa5555;
+            color: rgb(43, 43, 43);
+        }
+
+        .user-join {
+            border: 2px solid green;
+            background-color: #55aa55;
+            color: rgb(43, 43, 43);
+        }
+
+        .user-left {
+            border: 2px solid rgb(185, 93, 32);
+            background-color: #cea87e;
+            color: rgb(43, 43, 43);
+        }
+
+        .system {
+            border: 2px solid rgb(83, 8, 65);
+            background-color: #a33a84;
+            color: rgb(43, 43, 43);
+        }
+
+        .command {
+            border: 2px solid rgba(83, 8, 65, 0.363);
+            background-color: #a33a8363;
+            color: rgb(43, 43, 43);
+        }
+
+        .profile-update {
+            border: 2px solid rgb(105, 105, 105);
+            background-color: #dfdfdf;
+            color: rgb(43, 43, 43);
+        }
+
+        .error .timestamp {
+            color: black;
+        }
+
+        #auth-zone {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+
+        }
+
+        #not-connected {
+            color: red;
+            font-weight: bold;
+        }
+
+        #profile-setup {
+            display: flex;
+            flex-direction: column;
+            border-radius: 5px;
+            background-color: lightgray;
+            border: 2px solid gray;
+            padding: 10px;
+        }
+
+        #avatar-colors {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+        }
+
+        #avatar-color-top-container,
+        #avatar-color-bottom-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #avatar-emoji-selection {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #profile-setup-buttons {
+            margin: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 
 </head>
 
 <body>
-    <label for="nick" onclick="auth()">Ваш ник</label>
-    <input type="text" name="nick" id="nick">
-    <button id="auth">Залогиниться</button>
-    <h1>DurkaChat</h1>
+    <div id="main">
+        <div id="auth-zone">
+            <!-- <label for="nick" onclick="auth()">Ваш ник</label> -->
+            <div id="profile-setup">
+                <div id="profile-setup-buttons">
+                    <button id="auth">Залогиниться / обновить профиль</button>
+                    <!-- <button id="update">Обновить профиль</button> -->
+                    <button id="show-hide-customise">Свернуть/развернуть кастомизацию</button>
+                </div>
+                <div id="customisation">
+                    <input type="text" name="nick" id="nick" placeholder="Ваш ник">
+                    <!-- <label for="avatar">Эмодзи аватара</label>
+                    <select name="avatar" id="avatar"></select> -->
+                    <div id="avatar-emoji-selection">
+                        <label for="avatar-emoji">Эмодзи аватара</label>
+                        <input type="text" name="avatar" id="avatar-emoji" maxlength="1">
+                    </div>
 
-    <ul id='messages'>
-    </ul>
-    <form action="" onsubmit="sendMessage(event)" id="typer">
-        <input type="text" id="messageText" autocomplete="off" placeholder="Сообщение или /help" />
-        <button>Отправить 🚀</button>
-    </form>
+                    <div id="avatar-colors">
+                        <div id="avatar-color-top-container">
+                            <label for="avatar-color-top">Верхний цвет градиента аватара</label>
+                            <input type="color" name="avatar-color-top" id="avatar-color-top">
+                        </div>
+                        <div id="avatar-color-bottom-container"><label for="avatar-color-bottom">Нижний цвет градиента
+                                аватара</label>
+                            <input type="color" name="avatar-color-bottom" id="avatar-color-bottom">
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div id="not-connected">Не подключено</div>
+            <label for="servers">Сервер чата</label>
+            <select name="servers" id="servers">
+                <option value="kihre.xyz:6969" selected>kihre.xyz:6969</option>
+                <option value="localhost:8000">localhost:8000</option>
+            </select>
+        </div>
+
+        <h1>DurkaChat</h1>
+
+        <!-- <ul id='messages'>
+        </ul> -->
+        <div id="messages">
+            <div class="message">
+                <div class="senderdata">
+                    <div class="avatar" style="background: linear-gradient(45deg, rgb(255, 0, 0), rgb(0, 0, 255));">
+                        🥽
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">Test</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Тестовое сообщение 97апрвымф ыпфсво Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat
+                    consequatur sed, nam laudantium soluta asperiores repellat vel provident dolor vitae qui, mollitia
+                    laboriosam, consequuntur assumenda delectus? Perferendis, sit voluptatum. Aliquid.
+                </div>
+            </div>
+            <div class="message">
+                <div class="senderdata">
+                    <div class="avatar"
+                        style="background: linear-gradient(0deg, rgba(163,151,163,1) 0%, rgba(232,247,249,1) 100%);">
+                        ⚙
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">System</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Это тестовое сообщение для чего-то
+                </div>
+            </div>
+            <div class="message error">
+                <div class="senderdata">
+                    <div class="avatar"
+                        style="background: linear-gradient(0deg, rgba(163,151,163,1) 0%, rgba(232,247,249,1) 100%);">
+                        ⚙
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">System</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Это тестовое сообщение для чего-то
+                </div>
+            </div>
+        </div>
+        <form action="" onsubmit="sendMessage(event)" id="typer">
+            <input type="text" id="messageText" autocomplete="off" placeholder="Сообщение или /help" />
+            <button>Отправить 🚀</button>
+        </form>
+    </div>
     <script>
+        let connected = false;
         let uuid = ""
-        let ws = new WebSocket("ws://kihre.xyz:6969/ws");
+        let server = "kihre.xyz:6969"
+        document.getElementById("show-hide-customise").addEventListener("click", ShowHideCustomisation)
+        let ws = null
+        let sendQueue = [];
+        const WORKER_INTERVAL = 100;
+
+        function OpenSocket() {
+            let server = document.getElementById("servers").value
+            ws = new WebSocket(`ws://${server}/ws`);
+            console.log(`Connected to ws://${server}/ws`)
+            ws.onclose = function (event) {
+                connected = false;
+                document.getElementById("not-connected").style = "display:block"
+                console.log("Connection closed");
+            }
+            ws.onopen = function (event) {
+                connected = true;
+                document.getElementById("not-connected").style = "display:none"
+                console.log("Connection opened");
+            }
+            ws.onmessage = function (event) {
+                console.log("Message recieved: ", event.data)
+                //console.log(event.data)
+                let data = JSON.parse(event.data)
+                if (data.action == "AUTH_RESULT") {
+                    uuid = data.uuid
+                }
+                else if (data.action == "MESSAGE") {
+                    MakeMessage(data)
+                } else if (data.action == "MESSAGES") {
+                    for (let i = 0; i < data.content.length; i++) {
+                        MakeMessage(data.content[i])
+                    }
+                }
+
+
+            };
+        }
+        function ShowHideCustomisation() {
+            document.getElementById("customisation").classList.toggle("hidden");
+        }
+
+
+
         document.getElementById("auth").addEventListener("click", auth)
         function auth() {
-            if (uuid != "") return
-            let inp = document.getElementById("nick").value
-            ws.send("AUTH_AS<|PARSE_SPLIT|>" + inp)
-            console.log(inp)
-            document.getElementById("auth").style = "display:none;"
+            if (connected == false) {
+                OpenSocket()
+            }
+            let name = document.getElementById("nick").value
+            let avatar_emoji = document.getElementById("avatar-emoji").value
+            let avatar_color_top = document.getElementById("avatar-color-top").value
+            let avatar_color_bottom = document.getElementById("avatar-color-bottom").value
+
+            if (uuid == "") {
+
+                sendQueue.push(JSON.stringify({
+                    "action": "AUTH",
+                    "nickname": name,
+                    "avatar_emoji": avatar_emoji,
+                    "avatar_color_top": avatar_color_top,
+                    "avatar_color_bottom": avatar_color_bottom,
+
+                }))
+                //console.log(inp)
+                //document.getElementById("auth").style = "display:none;"
+            }
+            else {
+                ws.send(JSON.stringify({
+                    "action": "UPDATE_PROFILE",
+                    "uuid": uuid,
+                    "nickname": name,
+                    "avatar_emoji": avatar_emoji,
+                    "avatar_color_top": avatar_color_top,
+                    "avatar_color_bottom": avatar_color_bottom,
+                }))
+            }
+
+        }
+        function MakeMessage(data) {
+            //<div class="message error">
+            //    <div class="senderdata">
+            //        <div class="avatar"
+            //            style="background: linear-gradient(0deg, rgba(163,151,163,1) 0%, rgba(232,247,249,1) 100%);">
+            //            ⚙
+            //        </div>
+            //        <div class="message-time-and-sender">
+            //            <span class="sender-name">System</span>
+            //            <div class="timestamp">
+            //                12.12.2024, 18:58
+            //            </div>
+            //        </div>
+            //    </div>
+            //    <div class="messagecontent">
+            //        Это тестовое сообщение для чего-то
+            //    </div>
+            //</div>
+            let div = document.createElement("div")
+            div.classList.add("message")
+            if (data.type == "error") {
+                div.classList.add("error")
+            } else if (data.type == "command") {
+                div.classList.add("command")
+            }
+            else if (data.type == "system") {
+                div.classList.add("system")
+            }
+            else if (data.type == "user_join") {
+                div.classList.add("user-join")
+            }
+            else if (data.type == "user_left") {
+                div.classList.add("user-left")
+            } else if (data.type == "profile_update") {
+                div.classList.add("profile-update")
+            }
+            let senderdata = document.createElement("div")
+            senderdata.classList.add("senderdata")
+            let avatar = document.createElement("div")
+            avatar.classList.add("avatar")
+            avatar.style = `background: linear-gradient(0deg, ${data.avatar_color_top} 0%, ${data.avatar_color_bottom} 100%);`
+            avatar.innerText = data.avatar_emoji
+            senderdata.appendChild(avatar)
+            let message_time_and_sender = document.createElement("div")
+            message_time_and_sender.classList.add("message-time-and-sender")
+            let sender_name = document.createElement("span")
+            sender_name.classList.add("sender-name")
+            sender_name.innerText = data.sender
+            message_time_and_sender.appendChild(sender_name)
+            let timestamp = document.createElement("div")
+            timestamp.classList.add("timestamp")
+            timestamp.innerText = data.timestamp
+            message_time_and_sender.appendChild(timestamp)
+            senderdata.appendChild(message_time_and_sender)
+            div.appendChild(senderdata)
+            let messagecontent = document.createElement("div")
+            messagecontent.classList.add("messagecontent")
+            messagecontent.innerText = data.content
+            div.appendChild(messagecontent)
+            document.getElementById("messages").appendChild(div)
+            // summary: data fields used
+            // type: error, command, system, user_join, user_left, profile_update
+            // sender: sender name
+            // timestamp: timestamp
+            // content: message content
+
+
         }
 
-        ws.onmessage = function (event) {
-            console.log(event.data)
-            if (event.data.startsWith(`AUTH:`)) {
-                uuid = event.data.split(":")[1]
-                return
-            }
-            var messages = document.getElementById('messages')
-            var message = document.createElement('li')
-            var content = document.createTextNode(event.data)
-            message.appendChild(content)
-            messages.appendChild(message)
-            message.classList.add("msg")
-        };
         function sendMessage(event) {
+            event.preventDefault()
             var input = document.getElementById("messageText")
-            if (input.value == "") {
-                event.preventDefault();
+            console.log("SENDING MESSAGE", connected, input.value)
+            if (input.value == "" || !connected) {
+
                 return;
             }
-            ws.send(`SEND<|PARSE_SPLIT|>${uuid}<|PARSE_SPLIT|>${input.value}`)
+            //ws.send(`SEND<|PARSE_SPLIT|>${uuid}<|PARSE_SPLIT|>${input.value}`)
+            ws.send(JSON.stringify({
+                "action": "MESSAGE",
+                "uuid": uuid,
+                "content": input.value
+            }))
             input.value = ''
-            event.preventDefault()
+
         }
+        setInterval(() => {
+            if (sendQueue.length > 0 && connected && ws != null) {
+                let str = sendQueue.shift()
+                ws.send(str)
+                console.log(str)
+            }
+        }, WORKER_INTERVAL);
     </script>
+
 </body>
 
 </html>
