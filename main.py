@@ -108,7 +108,8 @@ html = """
 
 @app.get("/")
 async def get():
-    return HTMLResponse(html)
+    #return HTMLResponse(html)
+    return FileResponse('developement.html')
 @app.get("/stats")
 async def get():
     return HTMLResponse(f'''
