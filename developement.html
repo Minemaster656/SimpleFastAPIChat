@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat</title>
+    <style>
+        .msg {
+            border-radius: 5px;
+            padding: 5px;
+            margin: 5px;
+            border: 2px solid gray;
+            width: fit-content;
+            background-color: rgb(200, 200, 200);
+        }
+
+        .nick {
+            font-weight: bold;
+        }
+
+        .time {
+            color: gray;
+            font-size: 10px;
+        }
+
+        #typer {}
+    </style>
+
+</head>
+
+<body>
+    <label for="nick" onclick="auth()">Ваш ник</label>
+    <input type="text" name="nick" id="nick">
+    <button id="auth">Залогиниться</button>
+    <h1>DurkaChat</h1>
+
+    <ul id='messages'>
+    </ul>
+    <form action="" onsubmit="sendMessage(event)" id="typer">
+        <input type="text" id="messageText" autocomplete="off" placeholder="Сообщение или /help" />
+        <button>Отправить 🚀</button>
+    </form>
+    <script>
+        let uuid = ""
+        let ws = new WebSocket("ws://kihre.xyz:6969/ws");
+        document.getElementById("auth").addEventListener("click", auth)
+        function auth() {
+            if (uuid != "") return
+            let inp = document.getElementById("nick").value
+            ws.send("AUTH_AS<|PARSE_SPLIT|>" + inp)
+            console.log(inp)
+            document.getElementById("auth").style = "display:none;"
+        }
+
+        ws.onmessage = function (event) {
+            console.log(event.data)
+            if (event.data.startsWith(`AUTH:`)) {
+                uuid = event.data.split(":")[1]
+                return
+            }
+            var messages = document.getElementById('messages')
+            var message = document.createElement('li')
+            var content = document.createTextNode(event.data)
+            message.appendChild(content)
+            messages.appendChild(message)
+            message.classList.add("msg")
+        };
+        function sendMessage(event) {
+            var input = document.getElementById("messageText")
+            if (input.value == "") {
+                event.preventDefault();
+                return;
+            }
+            ws.send(`SEND<|PARSE_SPLIT|>${uuid}<|PARSE_SPLIT|>${input.value}`)
+            input.value = ''
+            event.preventDefault()
+        }
+    </script>
+</body>
+
+</html>
