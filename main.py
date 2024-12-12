@@ -4,7 +4,7 @@ import math
 import time
 
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 import uuid as UUID
 
 conns = {} # nickname : websocket
