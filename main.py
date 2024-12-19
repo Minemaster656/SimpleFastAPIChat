@@ -19,6 +19,47 @@ unknown_conns = []
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+import sqlite3
+import os
+
+# Создание или подключение к базе данных SQLite
+# def init_db():
+#     global conn, cursor, history
+# Проверка существования файла базы данных и его создание, если он отсутствует
+if not os.path.exists('chat_database.db'):
+    with open('chat_database.db', 'w') as f:
+        pass  # Создаем пустой файл базы данных, если он не существует
+db_conn = sqlite3.connect('chat_database.db')  # Имя файла базы данных
+cursor = db_conn.cursor()
+# ПОЛЯ СООБЩЕНИЙ
+# Создание таблицы пользователей, если она не существует
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT NOT NULL,
+        avatar_emoji TEXT,
+        avatar_color_top TEXT,
+        avatar_color_bottom TEXT,
+        action TEXT,
+        type TEXT,
+        content TEXT,
+        timestamp INTEGER
+    )
+''')
+
+db_conn.commit()
+# Чтение последних n сообщений из базы данных, если она уже существует
+cursor.execute("SELECT * FROM messages ORDER BY timestamp ASC LIMIT ?", (100,))
+history = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+
+# Исправление undefined ников
+for message in history:
+    if not message['sender']:
+        message['sender'] = "Неизвестный"
+
+# conn.close()
+# Инициализация базы данных при запуске приложения
+# init_db()
 
 
 class Profile:
@@ -61,19 +102,39 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    global history, conns, conns_profiles, unknown_conns, db_conn, cursor
     await websocket.accept()
     unknown_conns.append(websocket)
 
-    async def SendMessageToAll(message:str):
+    async def SendMessageToAll(message: str):
+        global history, conns, conns_profiles, unknown_conns, db_conn, cursor
+        print(message)
         history.append(json.loads(message))
         if len(history) > 100:
             history.pop(0)
+
+        # Добавление сообщения в базу данных
+        message_data = json.loads(message)
+        cursor.execute('''
+            INSERT INTO messages (sender, avatar_emoji, avatar_color_top, avatar_color_bottom, action, type, content, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            message_data["sender"],
+            message_data["avatar_emoji"],
+            message_data["avatar_color_top"],
+            message_data["avatar_color_bottom"],
+            message_data["action"],
+            message_data["type"],
+            message_data["content"],
+            message_data["timestamp"]
+        ))
+        db_conn.commit()
+
         for conn in conns.keys():
             try:
                 await conns[conn].send_text(message)
             except Exception as eee:
                 print("Could not send message to: " + conn + "\nBecause: " + str(eee))
-
     try:
         while True:
             data_raw = await websocket.receive_text()
