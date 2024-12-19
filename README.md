@@ -15,7 +15,7 @@ source venv/bin/activate
 
 2. Install requirements:
 ```bash
-pip install websockets uvicorn fastapi asyncio
+pip install websockets uvicorn fastapi asyncio jinja2
 ```
 
 3. Run:

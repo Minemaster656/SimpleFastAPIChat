@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-emoji/dist/markdown-it-emoji.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+
+  <body>
+    <button id="themeToggle">
+      <span class="light-icon">🌞</span>
+      <span class="dark-icon">🌙</span>
+    </button>
+
+    <div id="main">
+      <div id="auth-zone">
+        <!-- <label for="nick" onclick="auth()">Ваш ник</label> -->
+        <div id="profile-setup">
+          <div id="profile-setup-buttons">
+            <button id="auth">Залогиниться / обновить профиль</button>
+            <!-- <button id="update">Обновить профиль</button> -->
+            <button id="show-hide-customise">
+              Свернуть/развернуть кастомизацию
+            </button>
+          </div>
+          <div id="customisation">
+            <input type="text" name="nick" id="nick" placeholder="Ваш ник" />
+            <!-- <label for="avatar">Эмодзи аватара</label>
+                    <select name="avatar" id="avatar"></select> -->
+            <div id="avatar-emoji-selection">
+              <label for="avatar-emoji">Эмодзи аватара</label>
+              <input
+                type="text"
+                name="avatar"
+                id="avatar-emoji"
+                maxlength="2"
+                placeholder="Введите эмодзи"
+              />
+            </div>
+
+            <div id="avatar-colors">
+              <div id="avatar-color-top-container">
+                <label for="avatar-color-top"
+                  >Верхний цвет градиента аватара</label
+                >
+                <input
+                  type="color"
+                  name="avatar-color-top"
+                  id="avatar-color-top"
+                />
+              </div>
+              <div id="avatar-color-bottom-container">
+                <label for="avatar-color-bottom"
+                  >Нижний цвет градиента аватара</label
+                >
+                <input
+                  type="color"
+                  name="avatar-color-bottom"
+                  id="avatar-color-bottom"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="not-connected">Не подключено</div>
+        <label for="servers">Сервер чата</label>
+        <select name="servers" id="servers">
+          <option value="kihre.xyz:6969" selected>Главный</option>
+
+          <option value="localhost:8000">Локальный 0</option>
+          <option value="localhost:8001">Локальный 1</option>
+        </select>
+        <button id="soundToggle">🔊</button>
+        <script>
+          let isMuted = false;
+          const soundToggle = document.getElementById("soundToggle");
+
+          soundToggle.addEventListener("click", () => {
+            isMuted = !isMuted;
+            soundToggle.innerText = isMuted ? "🔇" : "🔊";
+            // Здесь можно добавить логику для включения/выключения звука
+            console.log(isMuted ? "Звук выключен" : "Звук включен");
+          });
+        </script>
+      </div>
+
+      <h1>DurkaChat</h1>
+
+      <!-- <ul id='messages'>
+        </ul> -->
+      <div id="messages" class="checkerboard-bg">
+        <!--<div class="message">
+                <div class="senderdata">
+                    <div class="avatar" style="background: linear-gradient(45deg, rgb(255, 0, 0), rgb(0, 0, 255));">
+                        🥽
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">Test</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Тестовое сообщение 97апрвымф ыпфсво Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat
+                    consequatur sed, nam laudantium soluta asperiores repellat vel provident dolor vitae qui, mollitia
+                    laboriosam, consequuntur assumenda delectus? Perferendis, sit voluptatum. Aliquid.
+                </div>
+            </div>
+            <div class="message">
+                <div class="senderdata">
+                    <div class="avatar"
+                        style="background: linear-gradient(0deg, rgba(163,151,163,1) 0%, rgba(232,247,249,1) 100%);">
+                        ⚙
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">System</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Это тестовое сообщение для чего-то
+                </div>
+            </div>
+            <div class="message error">
+                <div class="senderdata">
+                    <div class="avatar"
+                        style="background: linear-gradient(0deg, rgba(163,151,163,1) 0%, rgba(232,247,249,1) 100%);">
+                        ⚙
+                    </div>
+                    <div class="message-time-and-sender">
+                        <span class="sender-name">System</span>
+                        <div class="timestamp">
+                            12.12.2024, 18:58
+                        </div>
+                    </div>
+                </div>
+                <div class="messagecontent">
+                    Это тестовое сообщение для чего-то
+                </div>
+            </div> -->
+      </div>
+      <form action="" onsubmit="submitMessage(event)" id="typer">
+        <textarea
+          id="messageText"
+          autocomplete="off"
+          placeholder="Сообщение или /help"
+          rows="3"
+          style="width: 100%"
+        ></textarea>
+        <button>Отправить 🚀</button>
+      </form>
+    </div>
+    <audio
+      src="/static/sounds/message.mp3"
+      id="message-sound"
+      style="display: none"
+    ></audio>
+    <audio
+      src="/static/sounds/join.mp3"
+      id="join-sound"
+      style="display: none"
+    ></audio>
+    <audio
+      src="/static/sounds/leave.mp3"
+      id="leave-sound"
+      style="display: none"
+    ></audio>
+    <audio
+      src="/static/sounds/connect.mp3"
+      id="connect-sound"
+      style="display: none"
+    ></audio>
+    <script src="/static/js/chat_main.js"></script>
+  </body>
+</html>
