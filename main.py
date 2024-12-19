@@ -209,4 +209,10 @@ async def websocket_endpoint(websocket: WebSocket):
             print(ee)
 
 
-uvicorn.run(app, host="0.0.0.0", port=8001)
+import sys
+
+port = 8001  # Порт по умолчанию
+if len(sys.argv) > 1 and sys.argv[1].isdigit():
+    port = int(sys.argv[1])  # Установка порта из аргументов
+
+uvicorn.run(app, host="0.0.0.0", port=port)
