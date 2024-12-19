@@ -9,9 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/markdown-it-emoji/dist/markdown-it-emoji.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css" />
+    <script src="/static/js/randomThings.js"></script>
   </head>
 
   <body>
+    {% include 'parts/avamoji_selection.html' %}
     <button id="themeToggle">
       <span class="light-icon">🌞</span>
       <span class="dark-icon">🌙</span>
@@ -29,7 +31,15 @@
             </button>
           </div>
           <div id="customisation">
-            <input type="text" name="nick" id="nick" placeholder="Ваш ник" />
+            
+            <input type="text" name="nick" id="nick" placeholder="Ваш ник" /> 
+            <button id="randomNicknameButton">🎲</button>
+            <script>
+              document.getElementById("randomNicknameButton").addEventListener("click", () => {
+                const randomNickname = getRandomPhrase();
+                document.getElementById("nick").value = randomNickname;
+              });
+            </script>
             <!-- <label for="avatar">Эмодзи аватара</label>
                     <select name="avatar" id="avatar"></select> -->
             <div id="avatar-emoji-selection">
@@ -41,6 +51,19 @@
                 maxlength="2"
                 placeholder="Введите эмодзи"
               />
+              <button id="emojiPickerButton">😎</button>
+              <script>
+                document.getElementById("emojiPickerButton").addEventListener("click", () => {
+                  callEmojiKeyboard(document.getElementById("avatar-emoji"), true, true);
+                });
+              </script>
+              <button id="randomEmojiButton">🎲</button>
+              <script>
+                document.getElementById("randomEmojiButton").addEventListener("click", () => {
+                  const randomEmoji = getRandomEmoji();
+                  document.getElementById("avatar-emoji").value = randomEmoji;
+                });
+              </script>
             </div>
 
             <div id="avatar-colors">
@@ -64,6 +87,17 @@
                   id="avatar-color-bottom"
                 />
               </div>
+            <button id="randomColorButton">🎲</button>
+            <script>
+              document.getElementById("randomColorButton").addEventListener("click", () => {
+                const randomTopColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+                const randomBottomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+                document.getElementById("avatar-color-top").value = randomTopColor;
+                document.getElementById("avatar-color-bottom").value = randomBottomColor;
+                console.log("Сгенерированный верхний цвет:", randomTopColor);
+                console.log("Сгенерированный нижний цвет:", randomBottomColor);
+              });
+            </script>
             </div>
           </div>
         </div>
@@ -155,9 +189,25 @@
           placeholder="Сообщение или /help"
           rows="3"
           style="width: 100%"
-        ></textarea>
+        ></textarea> 
+        <button id="emojiButton">😊</button>
         <button>Отправить 🚀</button>
+        <script>
+          document.getElementById("emojiButton").addEventListener("click", () => {
+            callEmojiKeyboard(document.getElementById("messageText"), true, false);
+          });
+        </script>
+        <p>Shift+Enter для переноса строки на 2, Ctrl+Enter для переноса строки на 1, Enter для отправки. Поддерживается <a href='https://lifehacker.ru/chto-takoe-markdown/'>Markdown</a></p>
       </form>
+      
+    </div>
+    <div style="position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <a href="#customisation" style="background-color: #007bff; color: white; padding: 10px; border-radius: 5px; text-align: center; text-decoration: none;">
+            ⬆️ Вверх
+        </a>
+        <a href="#typer" style="background-color: #007bff; color: white; padding: 10px; border-radius: 5px; text-align: center; text-decoration: none;">
+            ⬇️ Вниз
+        </a>
     </div>
     <audio
       src="/static/sounds/message.mp3"
