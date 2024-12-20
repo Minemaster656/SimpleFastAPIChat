@@ -159,3 +159,4 @@ fabric.properties
 .idea
 /.idea/inspectionProfiles/profiles_settings.xml
 chat_database.db
+data.db

@@ -1,317 +1,388 @@
 :root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --msg-bg-color: rgb(200, 200, 200);
-    --message-bg-color: rgb(179, 179, 179);
-    --error-bg-color: #aa5555;
-    --user-join-bg-color: #55aa55;
-    --user-left-bg-color: #cea87e;
-    --system-bg-color: #a33a84;
-    --command-bg-color: #a33a8363;
-    --profile-update-bg-color: #dfdfdf;
-    --input-border-color: gray;
-    --input-bg-color: lightgray;
-    --msg-container-bg-color: rgb(200, 200, 200);
-    --timestamp-color: rgb(0, 0, 0);
+  --border-radius: 15px;
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --msg-bg-color: rgb(200, 200, 200);
+  --message-bg-color: rgb(179, 179, 179);
+  --error-bg-color: #aa5555;
+  --user-join-bg-color: #55aa55;
+  --user-left-bg-color: #cea87e;
+  --system-bg-color: #a33a84;
+  --command-bg-color: #a33a8363;
+  --profile-update-bg-color: #dfdfdf;
+  --input-border-color: gray;
+  --input-bg-color: lightgray;
+  --msg-container-bg-color: rgb(200, 200, 200);
+  --timestamp-color: rgb(0, 0, 0);
+  --shadow-color: rgba(34, 60, 80, 0.2);
 }
 
 [data-theme="dark"] {
-    --bg-color: #1a1a1a;
-    --text-color: #ffffff;
-    --msg-bg-color: rgb(43, 43, 43, 0.1);
-    --message-bg-color: rgb(100, 100, 100);
-    --error-bg-color: #aa5555;
-    --user-join-bg-color: #55aa55;
-    --user-left-bg-color: #cea87e;
-    --system-bg-color: #a33a84;
-    --command-bg-color: #a33a8363;
-    --profile-update-bg-color: #dfdfdf;
-    --input-border-color: gray;
-    --input-bg-color: #333333;
-    --msg-container-bg-color: rgb(43, 43, 43);
-    --timestamp-color: rgb(255, 255, 255);
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --msg-bg-color: rgb(43, 43, 43, 0.1);
+  --message-bg-color: rgb(100, 100, 100);
+  --error-bg-color: #aa5555;
+  --user-join-bg-color: #55aa55;
+  --user-left-bg-color: #cea87e;
+  --system-bg-color: #a33a84;
+  --command-bg-color: #a33a8363;
+  --profile-update-bg-color: #dfdfdf;
+  --input-border-color: gray;
+  --input-bg-color: #333333;
+  --msg-container-bg-color: rgb(43, 43, 43);
+  --timestamp-color: rgb(255, 255, 255);
+  --shadow-color: rgba(9, 22, 32, 0.459);
 }
 button {
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    background-color: var(--input-border-color);
-    color: var(--text-color);
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 10px 15px;
+  background-color: var(--input-border-color);
+  color: var(--text-color);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  -webkit-box-shadow: 4px 4px 8px 0px var(--shadow-color);
+  -moz-box-shadow: 4px 4px 8px 0px var(--shadow-color);
+  box-shadow: 4px 4px 8px 0px var(--shadow-color);
+  transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-    background-color: var(--msg-bg-color);
-    transform: scale(1.05);
+  background-color: var(--msg-bg-color);
+  transform: scale(1.05);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
 }
 
 button:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
+  -webkit-box-shadow: 0px 5px 10px 2px var(--shadow-color) inset;
+  -moz-box-shadow: 0px 5px 10px 2px var(--shadow-color) inset;
+  box-shadow: 0px 5px 10px 2px var(--shadow-color) inset;
 }
 
-
 #themeToggle {
-    background-color: transparent;
-    border: 2px solid var(--input-border-color);
-    border-radius: 5px; /* Добавлено для закругления углов */
-    padding: 10px; /* Добавлено для увеличения области клика */
-    transition: background-color 0.3s, transform 0.2s; /* Добавлено для плавного перехода */
+  background-color: transparent;
+  border: 2px solid var(--input-border-color);
+  border-radius: var(--border-radius);
+  padding: 10px;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 #themeToggle:hover {
-    background-color: var(--msg-bg-color);
-    transform: scale(1.05); /* Добавлено для эффекта увеличения при наведении */
+  background-color: var(--msg-bg-color);
+  transform: scale(1.05);
 }
 
-
 body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
-    font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .msg {
-    border-radius: 5px;
-    padding: 5px;
-    margin: 5px;
-    border: 2px solid var(--input-border-color);
-    width: fit-content;
-    background-color: var(--msg-bg-color);
+  border-radius: var(--border-radius);
+  padding: 5px;
+  margin: 5px;
+  border: 2px solid var(--input-border-color);
+  width: fit-content;
+  background-color: var(--msg-bg-color);
 }
 
 .nick {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .time {
-    color: var(--input-border-color);
-    font-size: 10px;
+  color: var(--input-border-color);
+  font-size: 10px;
 }
 
 input {
-    border-radius: 5px;
-    border: 2px solid var(--input-border-color);
-    padding: 5px;
-    background-color: var(--input-bg-color);
+  border-radius: 5px;
+  border: 2px solid var(--input-border-color);
+  padding: 5px;
+  background-color: var(--input-bg-color);
 }
 
 #messages {
-    border-radius: 5px;
-    padding: 10px;
-    background-color: var(--msg-bg-color);
-    margin: 10px;
-
+  border-radius: 5px;
+  padding: 10px;
+  background-color: var(--msg-bg-color);
+  margin: 10px;
 }
 .checkerboard-bg {
-    background-image: linear-gradient(45deg, var(--msg-container-bg-color) 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, var(--msg-container-bg-color) 75%, var(--msg-container-bg-color));
-    background-size: 20px 20px;
-    animation: moveBackground 5s linear infinite;
+  background-image: linear-gradient(
+      45deg,
+      var(--msg-container-bg-color) 25%,
+      transparent 25%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 75%,
+      var(--msg-container-bg-color) 75%,
+      var(--msg-container-bg-color)
+    );
+  background-size: 20px 20px;
+  animation: moveBackground 5s linear infinite;
 }
 
 @keyframes moveBackground {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        background-position: 20px 20px;
-    }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
 }
-    /*background-image: linear-gradient(45deg, var(--bg-color) 25%, transparent 25%),
+
+@media (max-width: 768px) {
+  /* .message {
+    animation: none;
+  } */
+  .checkerboard-bg {
+    animation: none;
+  }
+}
+
+/*background-image: linear-gradient(45deg, var(--bg-color) 25%, transparent 25%),
                       linear-gradient(45deg, transparent 75%, var(--bg-color) 75%, var(--bg-color));
     background-size: 20px 20px;
 }*/
 
 @keyframes messageAppear {
-    
-    0% {
-        transform: scale(0) translate(-100%, 100%);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.1) translate(0, 0);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1) translate(0, 0);
-    }
+  0% {
+    transform: scale(0) translate(-100%, 100%);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
 }
 .message {
-    display: flex;
-    border: 2px solid var(--input-border-color);
-    background-color: var(--message-bg-color);
-    border-radius: 5px;
-    padding: 5px;
-    margin: 5px;
-    width: fit-content;
-    animation: messageAppear 1s ease-in-out forwards;
-    transition: all 0.3s ease-in-out;
+  display: flex;
+  border: 2px solid var(--input-border-color);
+  background-color: var(--message-bg-color);
+  border-radius: var(--border-radius);
+  padding: 5px;
+  margin: 5px;
+  width: fit-content;
+  animation: messageAppear 1s ease-in-out forwards;
+  transition: all 0.3s ease-in-out;
+  -webkit-box-shadow: 4px 4px 8px 0px var(--shadow-color);
+  -moz-box-shadow: 4px 4px 8px 0px var(--shadow-color);
+  box-shadow: 4px 4px 8px 0px var(--shadow-color);
 }
 
 .senderdata {
-    display: flex;
-    margin: 0px 10px 0px 5px;
-    border-right: 2px solid var(--input-border-color);
+  display: flex;
+  margin: 0px 10px 0px 5px;
+  border-right: 2px solid var(--input-border-color);
 }
 
 .sender-name {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .avatar {
-    padding: 5px;
-    border-radius: 50%;
-    text-align: center;
-    aspect-ratio: 1;
-    width: 30px;
-    height: 30px;
-    transition: all 0.3s ease-in-out;
-    &:hover {
-        transform: scale(1.1);
-    }
-    &:active {
-        transform: scale(0.9);
-    }
+  padding: 5px;
+  border-radius: 50%;
+  text-align: center;
+  aspect-ratio: 1;
+  width: 30px;
+  height: 30px;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    transform: scale(1.1);
+  }
+  &:active {
+    transform: scale(0.9);
+  }
 }
 
 .timestamp {
-    color: var(--timestamp-color);
-    font-size: 10px;
-    background-color: var(--bg-color);
-    border-radius: 5px;
-    padding: 2px;
+  color: var(--timestamp-color);
+  font-size: 10px;
+  background-color: var(--bg-color);
+  border-radius: var(--border-radius);
+  padding: 2px;
 }
 
 .message-time-and-sender {
-    display: flex;
-    flex-direction: column;
-    margin: 5px;
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
 }
 
-
 .error {
-    border: 2px solid red;
-    background-color: var(--error-bg-color);
-    color: rgb(43, 43, 43);
-    
-    &:hover {
-        box-shadow: 0 0 10px red;
-    }
+  border: 2px solid red;
+  background-color: var(--error-bg-color);
+  color: rgb(43, 43, 43);
+
+  &:hover {
+    box-shadow: 0 0 10px red;
+  }
 }
 
 @keyframes shake {
-    0% { transform: translate(0); }
-    25% { transform: translate(-2px, 0); }
-    50% { transform: translate(2px, 0); }
-    75% { transform: translate(-2px, 0); }
-    100% { transform: translate(0); }
+  0% {
+    transform: translate(0);
+  }
+  25% {
+    transform: translate(-2px, 0);
+  }
+  50% {
+    transform: translate(2px, 0);
+  }
+  75% {
+    transform: translate(-2px, 0);
+  }
+  100% {
+    transform: translate(0);
+  }
 }
 
 .user-join {
-    border: 2px solid green;
-    background-color: var(--user-join-bg-color);
-    color: rgb(43, 43, 43);
+  border: 2px solid green;
+  background-color: var(--user-join-bg-color);
+  color: rgb(43, 43, 43);
 }
 
 .user-left {
-    border: 2px solid rgb(185, 93, 32);
-    background-color: var(--user-left-bg-color);
-    color: rgb(43, 43, 43);
+  border: 2px solid rgb(185, 93, 32);
+  background-color: var(--user-left-bg-color);
+  color: rgb(43, 43, 43);
 }
 
 .system {
-    border: 2px solid rgb(83, 8, 65);
-    background-color: var(--system-bg-color);
-    color: rgb(43, 43, 43);
+  border: 2px solid rgb(83, 8, 65);
+  background-color: var(--system-bg-color);
+  color: rgb(43, 43, 43);
 }
 
 .command {
-    border: 2px solid rgba(83, 8, 65, 0.363);
-    background-color: var(--command-bg-color);
-    color: rgb(43, 43, 43);
+  border: 2px solid rgba(83, 8, 65, 0.363);
+  background-color: var(--command-bg-color);
+  color: rgb(43, 43, 43);
 }
 
 .profile-update {
-    border: 2px solid rgb(105, 105, 105);
-    background-color: var(--profile-update-bg-color);
-    color: rgb(43, 43, 43);
+  border: 2px solid rgb(105, 105, 105);
+  background-color: var(--profile-update-bg-color);
+  color: rgb(43, 43, 43);
+  border-radius: var(--border-radius);
 }
 
 .error .timestamp {
-    color: black;
+  color: black;
 }
 
 #auth-zone {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
 #not-connected {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
 }
 
 #profile-setup {
-    display: flex;
-    flex-direction: column;
-    border-radius: 5px;
-    background-color: var(--input-bg-color);
-    border: 2px solid var(--input-border-color);
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  background-color: var(--input-bg-color);
+  border: 2px solid var(--input-border-color);
+  padding: 10px;
 }
 
 #avatar-colors {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 
 #avatar-color-top-container,
 #avatar-color-bottom-container {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 #avatar-emoji-selection {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
 }
 
 #profile-setup-buttons {
-    margin: 5px;
+  margin: 5px;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 #messageText {
-    display: inline-block;
-    min-width: 100px; /* Минимальная ширина (100 пикселей) */
-    max-width: 90%; /* Не выходит за пределы контейнера */
-    width: auto;
-    white-space: pre-wrap; /* Для переноса текста */
-    /* resize: vertical; Ограничиваем изменение размеров только по высоте */
-    box-sizing: border-box; /* Учитывает поля при расчете ширины */
-    padding: 10px;
-    border-radius: 5px;
-    border: 2px solid var(--input-border-color);
-    background-color: var(--input-bg-color);
-    font-size: 16px; /* Размер шрифта */
-    color: var(--text-color); /* Цвет текста в зависимости от темы */
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Транзишны для плавного изменения */
+  display: inline-block;
+  min-width: 100px; /* Минимальная ширина (100 пикселей) */
+  max-width: 90%; /* Не выходит за пределы контейнера */
+  width: auto;
+  white-space: pre-wrap; /* Для переноса текста */
+  /* resize: vertical; Ограничиваем изменение размеров только по высоте */
+  box-sizing: border-box; /* Учитывает поля при расчете ширины */
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px solid var(--input-border-color);
+  background-color: var(--input-bg-color);
+  font-size: 16px; /* Размер шрифта */
+  color: var(--text-color); /* Цвет текста в зависимости от темы */
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease; /* Транзишны для плавного изменения */
 }
 
 #messageText:focus {
-    border-color: var(--input-focus-border-color); /* Цвет границы при фокусе */
-    outline: none; /* Убираем стандартный контур */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Легкая тень при фокусе */
+  border-color: var(--input-focus-border-color); /* Цвет границы при фокусе */
+  outline: none; /* Убираем стандартный контур */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Легкая тень при фокусе */
+}
+
+select {
+  border-radius: var(--border-radius);
+  border: 2px solid var(--input-border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  padding: 10px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
+  box-shadow: 0 2px 5px var(--shadow-color); /* Используем переменную для цвета тени */
+  appearance: none; /* Убираем стандартный стиль */
+}
+
+select:focus {
+  border-color: var(--input-focus-border-color);
+  outline: none;
+  box-shadow: 0 0 5px var(--shadow-color); /* Используем переменную для цвета тени */
+}
+
+option {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 10px;
+}
+
+option:hover {
+  background-color: var(--msg-bg-color);
 }

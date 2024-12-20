@@ -66,7 +66,16 @@ function auth() {
   let avatar_color_bottom = document.getElementById(
     "avatar-color-bottom"
   ).value;
-
+  // if (name.trim() === "") {
+  //   name = getRandomPhrase();
+  // }
+  // if (avatar_emoji.trim() === "") {
+  //   avatar_emoji = getRandomEmoji();
+  // }
+  // if (avatar_color_top === "#000000" && avatar_color_bottom === "#000000") {
+  //   avatar_color_top = getRandomColor();
+  //   avatar_color_bottom = getRandomColor();
+  // }
   if (uuid == "") {
     sendQueue.push(
       JSON.stringify({

@@ -9,6 +9,9 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates  # Импортируем шаблонизатор
 import uuid as UUID
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 templates = Jinja2Templates(directory="templates")  # Добавляем инициализацию шаблонизатора
 
@@ -19,45 +22,45 @@ unknown_conns = []
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-import sqlite3
-import os
 
-# Создание или подключение к базе данных SQLite
-# def init_db():
-#     global conn, cursor, history
-# Проверка существования файла базы данных и его создание, если он отсутствует
-if not os.path.exists('chat_database.db'):
-    with open('chat_database.db', 'w') as f:
-        pass  # Создаем пустой файл базы данных, если он не существует
-db_conn = sqlite3.connect('chat_database.db')  # Имя файла базы данных
-cursor = db_conn.cursor()
-# ПОЛЯ СООБЩЕНИЙ
-# Создание таблицы пользователей, если она не существует
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sender TEXT NOT NULL,
-        avatar_emoji TEXT,
-        avatar_color_top TEXT,
-        avatar_color_bottom TEXT,
-        action TEXT,
-        type TEXT,
-        content TEXT,
-        timestamp INTEGER
-    )
-''')
+# Создание базы данных с использованием SQLAlchemy
+DATABASE_URL = "sqlite:///data.db"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from sqlalchemy.orm import declarative_base
+Base = declarative_base()
 
-db_conn.commit()
-# Чтение последних n сообщений из базы данных, если она уже существует
-cursor.execute("SELECT * FROM messages ORDER BY timestamp ASC LIMIT ?", (100,))
-history = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+# Определение модели сообщений
+class Message(Base):
+    __tablename__ = "messages"
 
+    id = Column(Integer, primary_key=True, index=True)
+    sender = Column(String, nullable=False)
+    avatar_emoji = Column(String)
+    avatar_color_top = Column(String)
+    avatar_color_bottom = Column(String)
+    action = Column(String)
+    type = Column(String)
+    content = Column(Text)
+    timestamp = Column(Integer)
+    sender_puuid = Column(String)
+    uuid = Column(String)
+    reactions = Column(Text, default="{}")
+
+# Создание таблиц в базе данных
+Base.metadata.create_all(bind=engine)
+
+# Инициализация сессии
+db = SessionLocal()
+
+# Чтение последних n сообщений из базы данных
+history = [{"sender": message.sender, "avatar_emoji": message.avatar_emoji, "avatar_color_top": message.avatar_color_top, "avatar_color_bottom": message.avatar_color_bottom, "action": message.action, "type": message.type, "content": message.content, "timestamp": message.timestamp, "sender_puuid": message.sender_puuid, "uuid": message.uuid, "reactions": json.loads(message.reactions)} for message in db.query(Message).order_by(Message.timestamp.asc()).limit(100).all()]
+print(history)
 # Исправление undefined ников
-for message in history:
-    if not message['sender']:
-        message['sender'] = "Неизвестный"
+# for message in history:
+#     if not message.sender:
+#         message.sender = "Неизвестный"
 
-# conn.close()
 # Инициализация базы данных при запуске приложения
 # init_db()
 
@@ -68,12 +71,14 @@ class Profile:
         self.avatar_emoji = avatar_emoji
         self.avatar_color_top = avatar_color_top
         self.avatar_color_bottom = avatar_color_bottom
+        self.public_uuid = str(UUID.uuid4())
     def __str__(self):
         return json.dumps({
             "nickname": self.nickname,
             "avatar_emoji": self.avatar_emoji,
             "avatar_color_top": self.avatar_color_top,
-            "avatar_color_bottom": self.avatar_color_bottom
+            "avatar_color_bottom": self.avatar_color_bottom,
+            "public_uuid": self.public_uuid
         })
 
 
@@ -102,43 +107,46 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    global history, conns, conns_profiles, unknown_conns, db_conn, cursor
+    global history, conns, conns_profiles, unknown_conns, db
     await websocket.accept()
     unknown_conns.append(websocket)
 
     async def SendMessageToAll(message: str):
-        global history, conns, conns_profiles, unknown_conns, db_conn, cursor
-        print(message)
+
+        global history, conns, conns_profiles, unknown_conns, db
+        print("BROADCASTING: " + message)
         history.append(json.loads(message))
         if len(history) > 100:
             history.pop(0)
 
         # Добавление сообщения в базу данных
         message_data = json.loads(message)
-        cursor.execute('''
-            INSERT INTO messages (sender, avatar_emoji, avatar_color_top, avatar_color_bottom, action, type, content, timestamp)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            message_data["sender"],
-            message_data["avatar_emoji"],
-            message_data["avatar_color_top"],
-            message_data["avatar_color_bottom"],
-            message_data["action"],
-            message_data["type"],
-            message_data["content"],
-            message_data["timestamp"]
-        ))
-        db_conn.commit()
+        new_message = Message(
+            sender=message_data["sender"],
+            avatar_emoji=message_data["avatar_emoji"],
+            avatar_color_top=message_data["avatar_color_top"],
+            avatar_color_bottom=message_data["avatar_color_bottom"],
+            action=message_data["action"],
+            type=message_data["type"],
+            content=message_data["content"],
+            timestamp=message_data["timestamp"],
+            sender_puuid=message_data["sender_puuid"],
+            uuid=message_data["uuid"],
+            reactions=json.dumps(message_data["reactions"])
+        )
+        db.add(new_message)
+        db.commit()
 
         for conn in conns.keys():
             try:
                 await conns[conn].send_text(message)
             except Exception as eee:
-                print("Could not send message to: " + conn + "\nBecause: " + str(eee))
+                print("Could not send message to: " + conn + "\nBecause: " + str(eee) + " [Ошибка в SendMessageToAll]")
     try:
         while True:
             data_raw = await websocket.receive_text()
             data = json.loads(str(data_raw))
+            print(data)
             action = data["action"]
             if action == "AUTH":
                 if not websocket in unknown_conns:
@@ -159,15 +167,29 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(str(json.dumps(
                         {"action": "AUTH_RESULT", "uuid": uuid})
                     ))
-                    
+                    # print("SENDING CONNECTION MESSAGE")
+                    # print("DEBUG: nickname =", data["nickname"])
+                    # print("DEBUG: avatar_color_top =", data["avatar_color_top"])
+                    # print("DEBUG: avatar_color_bottom =", data["avatar_color_bottom"])
+                    # print("DEBUG: avatar_emoji =", data["avatar_emoji"])
+                    # print("DEBUG: uuid =", uuid)
+                    # print(data)
+                    # print(data["uuid"])
+                    # print("DEBUG: public_uuid =", conns_profiles[data["uuid"]].public_uuid)
+
                     msg = {"action": "MESSAGE",
                          "type":"user_join", "content":f"Пользователь присоединился к чату! Онлайн: {len(conns)}",
                          "timestamp":math.floor(time.time()*1000),
                          "sender": data["nickname"],
                          "avatar_color_top": data["avatar_color_top"],
                          "avatar_color_bottom": data["avatar_color_bottom"],
-                         "avatar_emoji": data["avatar_emoji"]}
+                         "avatar_emoji": data["avatar_emoji"],
+                         "sender_puuid": "SYSTEM",
+                         "uuid": str(UUID.uuid4()),
+                         "reactions": {}}
+                    print(str(json.dumps(msg)))
                     await SendMessageToAll(str(json.dumps(msg)))
+                    print(history)
                     await websocket.send_text(str(json.dumps(
                         {"action": "MESSAGES",
                          "content": history,
@@ -189,13 +211,17 @@ async def websocket_endpoint(websocket: WebSocket):
                          "avatar_emoji": "🤖"}
                     )))
                 else:
+                    print("SENDING PROFILE UPDATE MESSAGE")
                     msg = {"action": "MESSAGE",
                              "type": "profile_update", "content": f"{current_profile.nickname} обновил профиль!",
                              "timestamp": math.floor(time.time() * 1000),
                              "sender": data["nickname"],
                              "avatar_color_top": data["avatar_color_top"],
                              "avatar_color_bottom": data["avatar_color_bottom"],
-                             "avatar_emoji": data["avatar_emoji"]}
+                             "avatar_emoji": data["avatar_emoji"],
+                             "sender_puuid": conns_profiles[data["uuid"]].public_uuid,
+                             "uuid": str(UUID.uuid4()),
+                             "reactions": {}}
                     await SendMessageToAll(str(json.dumps(msg)))
                     current_profile.nickname = data["nickname"]
                     current_profile.avatar_emoji = data["avatar_emoji"]
@@ -232,19 +258,34 @@ async def websocket_endpoint(websocket: WebSocket):
                              "avatar_color_bottom": "#444344",
                              "avatar_emoji": "🤖"})))
                 else:
+                    print("SENDING MESSAGE: " + data_raw)
+                    print("DEBUG: Preparing message with the following values:")
+                    print("DEBUG: content =", data["content"])
+                    print("DEBUG: timestamp =", math.floor(time.time() * 1000))
+                    print("DEBUG: sender =", conns_profiles[data["uuid"]].nickname)
+                    print("DEBUG: avatar_color_top =", conns_profiles[data["uuid"]].avatar_color_top)
+                    print("DEBUG: avatar_color_bottom =", conns_profiles[data["uuid"]].avatar_color_bottom)
+                    print("DEBUG: avatar_emoji =", conns_profiles[data["uuid"]].avatar_emoji)
+                    print("DEBUG: sender_puuid =", conns_profiles[data["uuid"]].public_uuid)
+                    print("DEBUG: uuid =", str(UUID.uuid4()))
+                    
                     msg = {"action": "MESSAGE",
                          "type": "message", "content": data["content"],
                          "timestamp": math.floor(time.time() * 1000),
                          "sender": conns_profiles[data["uuid"]].nickname,
                          "avatar_color_top": conns_profiles[data["uuid"]].avatar_color_top,
                          "avatar_color_bottom": conns_profiles[data["uuid"]].avatar_color_bottom,
-                         "avatar_emoji": conns_profiles[data["uuid"]].avatar_emoji}
+                         "avatar_emoji": conns_profiles[data["uuid"]].avatar_emoji,
+                         "sender_puuid": conns_profiles[data["uuid"]].public_uuid,
+                         "uuid": str(UUID.uuid4()),
+                         "reactions": {}}
                     await SendMessageToAll(str(json.dumps(msg)))
 
 
 
 
     except Exception as e:
+        print("Websocket error: " + str(e) + " [Ошибка в /ws e]")
         nick_l = ""
         profile = None
         msg = ""
@@ -260,14 +301,17 @@ async def websocket_endpoint(websocket: WebSocket):
                                "timestamp": math.floor(time.time() * 1000),
                                "sender": nick_l, "avatar_color_top": profile.avatar_color_top,
                                "avatar_color_bottom": profile.avatar_color_bottom,
-                               "avatar_emoji": profile.avatar_emoji}
+                               "avatar_emoji": profile.avatar_emoji,
+                               "sender_puuid": profile.public_uuid,
+                               "uuid": str(UUID.uuid4()),
+                               "reactions": {}}
                         del conns_profiles[profile_uuid]
                         break
                 break
         try:
             await SendMessageToAll(str(json.dumps(msg)))
         except Exception as ee:
-            print(ee)
+            print("Websocket error: " + str(ee) + " [Ошибка в /ws ee]")
 
 
 import sys
@@ -275,5 +319,10 @@ import sys
 port = 8001  # Порт по умолчанию
 if len(sys.argv) > 1 and sys.argv[1].isdigit():
     port = int(sys.argv[1])  # Установка порта из аргументов
+
+# Закрытие сессии
+# db.close()
+
+
 
 uvicorn.run(app, host="0.0.0.0", port=port)

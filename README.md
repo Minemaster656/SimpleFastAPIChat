@@ -15,7 +15,11 @@ source venv/bin/activate
 
 2. Install requirements:
 ```bash
-pip install websockets uvicorn fastapi asyncio jinja2
+pip install websockets uvicorn fastapi asyncio jinja2 sqlalchemy
+```
+or
+```bash
+pip install -r requirements.txt
 ```
 
 3. Run:
@@ -23,3 +27,7 @@ pip install websockets uvicorn fastapi asyncio jinja2
 uvicorn {main or script name if you renamed it}:app --port {your port} --host 0.0.0.0
 ```
 > *(Of course without {})*
+# CHANGED:
+```bash
+python main.py PORT(DEFAULT IS 8001)
+```
