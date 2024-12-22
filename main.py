@@ -72,6 +72,19 @@ class Profile:
         self.avatar_color_top = avatar_color_top
         self.avatar_color_bottom = avatar_color_bottom
         self.public_uuid = str(UUID.uuid4())
+        self.last_message = None
+        self.last_timestamp = 0
+
+    def update_last_message(self, message_text):
+        self.last_message = message_text
+        self.last_timestamp = int(time.time())
+
+    def is_message_too_soon(self, message_text):
+        current_time = int(time.time())
+        if (self.last_message == message_text and (current_time - self.last_timestamp) < 3) or (current_time - self.last_timestamp) < 1:
+            return False
+        return True
+
     def __str__(self):
         return json.dumps({
             "nickname": self.nickname,
@@ -80,7 +93,6 @@ class Profile:
             "avatar_color_bottom": self.avatar_color_bottom,
             "public_uuid": self.public_uuid
         })
-
 
 
 @app.get("/")
@@ -258,29 +270,41 @@ async def websocket_endpoint(websocket: WebSocket):
                              "avatar_color_bottom": "#444344",
                              "avatar_emoji": "🤖"})))
                 else:
-                    print("SENDING MESSAGE: " + data_raw)
-                    print("DEBUG: Preparing message with the following values:")
-                    print("DEBUG: content =", data["content"])
-                    print("DEBUG: timestamp =", math.floor(time.time() * 1000))
-                    print("DEBUG: sender =", conns_profiles[data["uuid"]].nickname)
-                    print("DEBUG: avatar_color_top =", conns_profiles[data["uuid"]].avatar_color_top)
-                    print("DEBUG: avatar_color_bottom =", conns_profiles[data["uuid"]].avatar_color_bottom)
-                    print("DEBUG: avatar_emoji =", conns_profiles[data["uuid"]].avatar_emoji)
-                    print("DEBUG: sender_puuid =", conns_profiles[data["uuid"]].public_uuid)
-                    print("DEBUG: uuid =", str(UUID.uuid4()))
-                    
-                    msg = {"action": "MESSAGE",
-                         "type": "message", "content": data["content"],
-                         "timestamp": math.floor(time.time() * 1000),
-                         "sender": conns_profiles[data["uuid"]].nickname,
-                         "avatar_color_top": conns_profiles[data["uuid"]].avatar_color_top,
-                         "avatar_color_bottom": conns_profiles[data["uuid"]].avatar_color_bottom,
-                         "avatar_emoji": conns_profiles[data["uuid"]].avatar_emoji,
-                         "sender_puuid": conns_profiles[data["uuid"]].public_uuid,
-                         "uuid": str(UUID.uuid4()),
-                         "reactions": {}}
-                    await SendMessageToAll(str(json.dumps(msg)))
-
+                    profile = conns_profiles[data["uuid"]]
+                    if not profile.is_message_too_soon(data["content"]):
+                        await websocket.send_text(str(json.dumps(
+                            {"action": "MESSAGE",
+                             "type": "error", "content": "Спамить сообщениями нельзя! Можете съесть это сообщение, засунуть куда-нибудь, кинуть в костёр, отправить его чату гпт или своему психологу, но не отправлять в чат так часто!",
+                             "timestamp": math.floor(time.time() * 1000),
+                             "sender": "Система посыла спамеров лесом",
+                             "avatar_color_top": "#aa5555",
+                             "avatar_color_bottom": "#441111",
+                             "avatar_emoji": "🤖"}
+                        )))
+                    else:
+                        print("SENDING MESSAGE: " + data_raw)
+                        print("DEBUG: Preparing message with the following values:")
+                        print("DEBUG: content =", data["content"])
+                        print("DEBUG: timestamp =", math.floor(time.time() * 1000))
+                        print("DEBUG: sender =", profile.nickname)
+                        print("DEBUG: avatar_color_top =", profile.avatar_color_top)
+                        print("DEBUG: avatar_color_bottom =", profile.avatar_color_bottom)
+                        print("DEBUG: avatar_emoji =", profile.avatar_emoji)
+                        print("DEBUG: sender_puuid =", profile.public_uuid)
+                        print("DEBUG: uuid =", str(UUID.uuid4()))
+                        
+                        msg = {"action": "MESSAGE",
+                             "type": "message", "content": data["content"],
+                             "timestamp": math.floor(time.time() * 1000),
+                             "sender": profile.nickname,
+                             "avatar_color_top": profile.avatar_color_top,
+                             "avatar_color_bottom": profile.avatar_color_bottom,
+                             "avatar_emoji": profile.avatar_emoji,
+                             "sender_puuid": profile.public_uuid,
+                             "uuid": str(UUID.uuid4()),
+                             "reactions": {}}
+                        await SendMessageToAll(str(json.dumps(msg)))
+                        profile.update_last_message(data["content"])
 
 
 
